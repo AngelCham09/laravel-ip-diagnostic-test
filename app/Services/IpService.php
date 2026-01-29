@@ -19,18 +19,21 @@ class IpService
     public function getPublicIp(): string
     {
         if (empty($this->baseUrl)) {
-            Log::critical("Ipify service URL is not configured in config/services.php");
-            return 'Configuration Error';
+            throw new \RuntimeException("Ipify service URL is not configured.");
         }
 
         return Cache::remember('public_ip', 3600, function () {
             try {
                 $response = Http::timeout(3)->retry(2, 100)->get($this->baseUrl);
 
-                return $response->successful() ? $response->json('ip') : '0.0.0.0';
+                if ($response->failed() || !$response->json('ip')) {
+                    throw new \Exception("Invalid response from IP provider.");
+                }
+
+                return $response->json('ip');
             } catch (\Exception $e) {
                 Log::error("IP Service Failure: " . $e->getMessage());
-                return '0.0.0.0';
+                throw new \RuntimeException("External IP service unavailable", 0, $e);
             }
         });
     }

@@ -13,11 +13,16 @@ class IpController extends Controller
 
     public function show(): JsonResponse
     {
-        $ip = $this->ipService->getPublicIp();
-
-        return response()->json([
-            'ip' => $ip,
-            'status' => $ip === '0.0.0.0' ? 'error' : 'success',
-        ]);
+        try {
+            return response()->json([
+                'ip' => $this->ipService->getPublicIp(),
+                'status' => 'success',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Service Unavailable',
+                'status' => 'error'
+            ], 503);
+        }
     }
 }

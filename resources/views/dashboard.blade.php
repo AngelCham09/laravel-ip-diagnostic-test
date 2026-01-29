@@ -30,7 +30,7 @@
                                 return res.json();
                             })
                             .then(data => { serverIp = data.ip; serverLoading = false; })
-                            .catch(() => { serverIp = 'Server error'; serverLoading = false; });
+                            .catch(() => { serverIp = 'Service Unavailable'; serverLoading = false; });
                      ">
 
                     <div class="mb-8">
